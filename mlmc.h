@@ -41,9 +41,25 @@ typedef struct s_mlmc_output{
     double* sums;            // Size L*moments*per_moments
 }mlmc_output;
 
+// commandline like options creation
+mlmc_options*
+MLMCCreateOptionsForCLI(int argc, char ** argv);
 
+// explicit MLMC options creation
 mlmc_options* 
-MLMCCreateOptions();
+MLMCCreateOptions(unsigned int Lmin, unsigned int LMax,
+    unsigned int N0, double alpha, double beta, double gamma,
+    unsigned int per_sample, 
+    void (*fn_mlmc_sample_levels)(unsigned int L,
+                                   const unsigned long long* M,
+                                   double *sums,
+                                   unsigned int sums_size,
+                              void *user_data),
+    void (*fn_mlmc_sample_level)(unsigned int ell,
+                                  unsigned long long M,
+                                  double *sums,
+                                  unsigned int sums_size,
+                                  void *user_data));
 
 void 
 MLMCFreeOptions(mlmc_options*);
