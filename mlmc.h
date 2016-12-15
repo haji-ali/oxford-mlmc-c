@@ -8,6 +8,7 @@
 #ifndef __MLMC_H__
 #define __MLMC_H__
 
+#define MLMC_MOMENTS_COUNT 4
 enum MLMC_RES
 {
     MLMC_RES_NOT_CONVERGED = -1,
@@ -24,17 +25,20 @@ enum MLMC_RES
  * @param L the final fine-grain level index.
  * @param M an L length array of  samples sizes,
  *          M[l] is the number of sample to take of level l.
- * @param sums a array of length sum_size that will contain the
- *             the function cost, and Monte Carlo estimator raw-moments.
+ * @param sums_moments a array of length sum_size that will contain the
+ *             the Monte Carlo estimator raw-moments.
  * @param sums_size total size of the sums array (must take into account
- *                   the number of levels, thenumber of moments and
+ *                   the number of levels, the number of moments and
  *                   the number of elements per moment).
+ * @param sums_work a array of length sum_size that will contain the
+ *             the cost.
  * @param user_data pointer to users application specific data.
  */
 typedef void (*fn_mlmc_sample_levels_t)(unsigned int L,
-                                        const unsigned long long* N,
-                                        double *sums,
+                                        unsigned long long* N,
+                                        double *sums_moments,
                                         unsigned int sums_size,
+                                        double* sums_work,
                                         void *user_data);
 /**
  * @typedef fn_mlmc_sample_level_t
@@ -44,16 +48,19 @@ typedef void (*fn_mlmc_sample_levels_t)(unsigned int L,
  *
  * @param ell the level index to sample.
  * @param M an number of samples to generate.
- * @param sums a array of length sum_size that will contain the
- *             the function cost, and Monte Carlo estimator raw-moments.
+ * @param sums_moments a array of length sum_size that will contain the
+ *             the Monte Carlo estimator raw-moments.
  * @param sums_size total size of the sums array (must take into account
  *                   number of moments and number of elements per moment).
+ * @param sums_work a array of length sum_size that will contain the
+ *             the cost.
  * @param user_data pointer to users application specific data.
  */
 typedef void (*fn_mlmc_sample_level_t)(unsigned int ell,
-                                       unsigned long long N,
-                                       double *sums,
+                                       unsigned long long* N,
+                                       double *sums_moments,
                                        unsigned int sums_size,
+                                       double *sums_work,
                                        void *user_data);
 
 
@@ -179,12 +186,20 @@ typedef struct s_mlmc_output{
      * @brief array of sample sizes size L
      */
     unsigned long long* Nl;
+
     /**
-     * @var sums
-     * @brief array containing moment and cost data.
+     * @var sums_work
+     * @brief array containing cost data.
      * The array is of length L*moments*per_moment
      */
-    double* sums;
+    double* sums_work;
+
+    /**
+     * @var sums_moments
+     * @brief array containing moment data.
+     * The array is of length L*MIMC_MOMENTS_COUNT*per_moment
+     */
+    double* sums_moments;
 }mlmc_output;
 
 /**
