@@ -52,6 +52,9 @@ mlmc_free_options(mlmc_options* opt)
 void
 mlmc_free_output(mlmc_output* out)
 {
+    free(out->sums_moments);
+    free(out->sums_work);
+    free(out->Nl);
     free(out);
 }
 
@@ -144,6 +147,8 @@ mlmc_run(const mlmc_options* opt)
     out->result = 0;
     out->sums_moments = malloc(sizeof(double)*Lmax*opt->per_sample*
                                MLMC_MOMENTS_COUNT);
+    out->Nl = malloc(sizeof(unsigned long long)*Lmax);
+    out->sums_work = malloc(sizeof(double)*Lmax);
 
     bool fit_alpha = opt->alpha < 0;
     bool fit_beta = opt->beta < 0;
