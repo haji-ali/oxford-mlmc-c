@@ -4,6 +4,10 @@
  * @details Defines a set of useful types and functions for typical
  * applications of Multilevel Monte Carlo.
  *
+ * @author Mike Giles (Mathematical Institute, University of Oxford)
+ * @author Abdul-Lateef Haji-Ali (Mathematical Institute, University of Oxford)
+ * @author David Warne (School of Mathematical Sciences, Queensland University of Technology)
+ *
  */
 #ifndef __MLMC_H__
 #define __MLMC_H__
@@ -123,10 +127,6 @@ typedef struct s_mlmc_options{
     // I think we should focus on fixed length vectors for now.
     /** @var per_sample
      * @brief Vector length for vector quantities
-     * @todo I feel this variable should be re-named, isn't this the
-     * dimensionality of the random variable?
-     * ABDO: No, this is the the dimensionality of the quantity of interest
-     * Or the number of double's per sample
      * @see mlmc_set_sample_size()
      */
     unsigned int per_sample;
