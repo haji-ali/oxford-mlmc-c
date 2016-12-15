@@ -8,6 +8,11 @@
 #ifndef __MLMC_H__
 #define __MLMC_H__
 
+enum MLMC_RES
+{
+    MLMC_RES_NOT_CONVERGED = -1,
+};
+
 /**
  * @typedef fn_mlmc_sample_levels_t
  * @brief User supplied sampling function pointer for all levels.
@@ -27,7 +32,7 @@
  * @param user_data pointer to users application specific data.
  */
 typedef void (*fn_mlmc_sample_levels_t)(unsigned int L,
-                                        const unsigned long long* M,
+                                        const unsigned long long* N,
                                         double *sums,
                                         unsigned int sums_size,
                                         void *user_data);
@@ -46,7 +51,7 @@ typedef void (*fn_mlmc_sample_levels_t)(unsigned int L,
  * @param user_data pointer to users application specific data.
  */
 typedef void (*fn_mlmc_sample_level_t)(unsigned int ell,
-                                       unsigned long long M,
+                                       unsigned long long N,
                                        double *sums,
                                        unsigned int sums_size,
                                        void *user_data);
@@ -81,6 +86,13 @@ typedef struct s_mlmc_options{
      * @see mlmc_set_initial_samples_num()
      */
     unsigned long long N0;
+
+    /** @var theta
+     * @brief Weak convergence rate.
+     * @note Must be between 0 and 1
+     * @see mlmc_set_theta()
+     */
+    double theta;
 
     /** @var alpha
      * @brief Weak convergence rate.
@@ -141,6 +153,12 @@ typedef struct s_mlmc_options{
  */
 typedef struct s_mlmc_output{
     /**
+     * @var results
+     * @brief An or of MLMC_RES_*
+     */
+    long result;
+
+    /**
      * @var L
      * @brief finest-grain level index.
      */
@@ -157,10 +175,10 @@ typedef struct s_mlmc_output{
     unsigned int per_moment;
 
     /**
-     * @var M
+     * @var Nl
      * @brief array of sample sizes size L
      */
-    unsigned long long* M;
+    unsigned long long* Nl;
     /**
      * @var sums
      * @brief array containing moment and cost data.
@@ -271,12 +289,12 @@ mlmc_free_options(mlmc_options* opt);
  * Runs the full MLMC algorithm based on given options.
  * @param opt Pointer to mlmc_options
  * @return Pointer to mlmc_output that contains estimator moments and compuational cost.
- * @see mlmc_create_options
- * @see mlmc_create_options_simple
- * @see mlmc_create_options_cli
+ * @see mlmc_create_options()
+ * @see mlmc_create_options_simple()
+ * @see mlmc_create_options_cli()
  */
 mlmc_output*
-mlmc_run(const mlmc_options* opt); // Options can be NULL for default
+mlmc_run(const mlmc_options* opt);
 
 
 /**
