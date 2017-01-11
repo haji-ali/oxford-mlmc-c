@@ -14,6 +14,57 @@
 typedef int bool;
 
 /**
+ * @copydoc mlmc_create_option_cli
+ */
+mlmc_options* 
+mlmc_create_option_cli(int argc, char ** argv, double eps, fn_mlmc_sample_levels_t fn_mlmc_sample_levels)
+{
+    int i;
+    int rc;
+    mlmc_options* opt;
+    opt = mlmc_create_option(eps,fn_mlmc_sample_levels);
+    /*find MLMC options flag*/
+    for (i=1;i<argc;i++){
+        if (!strcmp("--MLMCOPT",argv[i])){
+            i++;
+            break;
+        }
+    }
+
+    /* extract options from commandline*/ 
+    for (;i<argc;i++){
+        if (!strcmp("--levels",argv[i])){
+            unsigned int Lmin,Lmax;
+            Lmin = (unsigned int)atoi(argv[++i]);
+            Lmax = (unsigned int)atoi(argv[++i]);
+            rc = mlmc_set_level_limits(opt,Lmin,Lmax);
+        } else if (!strcmp("--initial-sample-num",argv[i])){
+            unsigned int N0;
+            N0 = (unsigned int)atoi(argv[++i]);
+            rc = mlmc_set_initial_samples_num(opt,N0);
+        }else if (!strcmp("--sample-size")){
+            unsigned int per_sample;
+            per_sample = (unsigned int)atoi(argv[++i]);
+            rc = mlmc_set_sample_size(opt,per_sample); 
+        } else if (!strcmp("--exponents",argv[i])){
+            double alpha,beta,gamma;
+            alpha = (double)atof(argv[++i]);
+            beta = (double)atof(argv[++i]);
+            gamma = (double)atof(argv[++i]);
+            rc = mlmc_set_exponents(opt,alpha,beta,gamma;
+        } else {
+            rc = MLMC_UNKNOWN_CLI_OPTION_ERROR;
+        }
+
+        if (rc != MLMC_SUCCESS){
+            /**@todo Need to implement proper error handler*/
+            return NULL;
+        }
+    }
+
+}
+
+/**
  * @copydoc mlmc_create_option
  */
 mlmc_options*
@@ -47,6 +98,62 @@ mlmc_create_option_simple(double eps, fn_mlmc_sample_level_t fn_mlmc_sample_leve
     opt->per_sample = 1;
     opt->theta = 0.25;
     return opt;
+}
+
+/**
+ * @copydoc mlmc_set_level_limts
+ */
+int
+mlmc_set_level_limits(mlmc_options* opt,unsigned int Lmin, unsigned int Lmax)
+{
+    if (Lmin > LMax){
+        return MLMC_INVALID_LIMITS_ERROR;
+    }
+    opt->Lmin = Lmin;
+    opt->Lmax = Lmax;
+    return MLMC_SUCCESS;
+}
+
+/**
+ * @copydoc mlmc_set_initial_samples_num
+ */
+int
+mlmc_set_initial_samples_num(mlmc_options * opt, unsigned int N0)
+{
+    if (N0 == 0){
+        return MLMC_INVALID_SAMPLE_NUM_ERROR;
+    }
+    opt->N0 = N0;
+    return MLMC_SUCCESS;
+}
+
+/**
+ * @copydoc mlmc_set_sample_size
+ */
+int
+mlmc_set_sample_size(mlmc_options* opt, unsigned int per_sample)
+{
+    if(per_sample == 0){
+        return MLMC_INVALID_SAMPLE_SIZE_ERROR;
+    }
+    opt->per_sample = per_sample;
+    return MLMC_SUCCESS;
+
+
+/**
+ * @copydoc mlmc_set_exponents
+ */
+int
+mlmc_set_exponents(mlmc_options * opt, double alpha, double beta, double gamma,int fit_alpha)
+{
+    if (isnan(alpha) || isnan(beta) || isnan(gamma) 
+        || isinfinite(alpha) || isinfinite(beta) || isinfinite(gamma)){
+        return MLMC_INVALID_EXPONENTS_ERROR;
+    }
+    opt->alpha = alpha;
+    opt->beta = beta;
+    opt->gamma = gamma;
+    return MLMC_SUCCESS;
 }
 
 /**

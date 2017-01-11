@@ -12,7 +12,19 @@
 #ifndef __MLMC_H__
 #define __MLMC_H__
 
+#include <math.h>
+
 #define MLMC_MOMENTS_COUNT 4
+
+/** @todo Add return codes as require. Currently it is the users responsibility to handle
+ *  errors, but we could add an error handler function to printsensible messages.*/
+#define MLMC_SUCCESS 0
+#define MLMC_INVALID_LIMITS_ERROR 1 
+#define MLMC_INVALID_SAMPLE_NUM_ERROR 2 
+#define MLMC_INVALID_SAMPLE_SIZE_ERROR 3 
+#define MLMC_INVALID_EXPONENTS_ERROR 4
+#define MLMC_UNKNOWN_CLI_OPTION_ERROR 5 
+
 enum MLMC_RES
 {
     MLMC_RES_NOT_CONVERGED = -1,
@@ -210,7 +222,7 @@ typedef struct s_mlmc_output{
  * @todo Full documentation
  */
 mlmc_options*
-mlmc_create_option_cli(int argc, char ** argv);
+mlmc_create_option_cli(int argc, char ** argv, double eps, fn_mlmc_sample_levels_t fn_mlmc_sample_levels);
 
 /**
  * Create an MLMC option structure to be used to be used with mlmc_run.
@@ -242,8 +254,8 @@ mlmc_create_option_simple(double eps, fn_mlmc_sample_level_t fn_mlmc_sample_leve
  * @param Lmax Maximum number of levels
  * @note default Lmin is 2 and Lmax is 32
  */
-void
-mlmc_set_level_limits(mlmc_options* opt, unsigned int Lmin, unsigned int LMax);
+int
+mlmc_set_level_limits(mlmc_options* opt, unsigned int Lmin, unsigned int Lmax);
 
 /**
  * Sets the initial number of samples that are used to compute variance estimates
@@ -254,7 +266,7 @@ mlmc_set_level_limits(mlmc_options* opt, unsigned int Lmin, unsigned int LMax);
  * corresponding to each level (0-extrapolating the other levels)
  * @note default is 100
  */
-void
+int
 mlmc_set_initial_samples_num(mlmc_options* opt, unsigned int N0);
 
 /**
@@ -266,7 +278,7 @@ mlmc_set_initial_samples_num(mlmc_options* opt, unsigned int N0);
  * @param per_sample Sample size
  * @note default is 1
  */
-void
+int
 mlmc_set_sample_size(mlmc_options* opt, unsigned int per_sample);
 
 /**
@@ -281,7 +293,7 @@ mlmc_set_sample_size(mlmc_options* opt, unsigned int per_sample);
  * fit based on computed data.
  * @note default alpha, beta and gamma are all -1.
  */
-void
+int
 mlmc_set_exponents(mlmc_options* opt,
                    double alpha, double beta, double gamma,
                    int fit_alpha);
